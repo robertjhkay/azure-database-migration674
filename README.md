@@ -37,11 +37,11 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 - The file was then uploaded to a storage container within Microsoft Azure.
 - I set up another virtual machine to act as the development environment. I installed SQL Server and SSMS just as I did on the production environment. I then downloaded the backup file and loaded it into SSMS.
 
-![Blob Containing AdventureWorks Backup](./images/Blob-Backup.png)
+![Blob Containing AdventureWorks Backup](./images/Blob-backup.png)
 
 - I then automated backups from the specified blob. To do this, I required creating a SQL Server Credential in SSMS. A SQL Server Credential is a security object that allows SQL Server to access external resources securely. To create a SQL Server Credential in SSMS, I right-clicked on the server name and selected New Query to open a new query window. Then, I executed the following T-SQL command to create the credentials:
 
-![Creating a Security Credential](./images/Security-Credential.png)
+![Creating a Security Credential](./images/Creating-security-credentials.png)
 
 - After doing this, backups from the blob could then be specified. This was done weekly on a Sunday night to minimize impact on the business.
 
