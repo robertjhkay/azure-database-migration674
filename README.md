@@ -58,13 +58,13 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 - I deliberately removed critical data from the production database to replicate a scenario where data integrity is compromised. The SQL code executed for this action is as follows:
 
   ```sql
-  -- -- Intentional Deletion
-  -- DELETE TOP (100)
-  -- FROM HumanResources.Employee;
+  -- Intentional Deletion
+  DELETE TOP (100)
+  FROM HumanResources.Employee;
 
-  -- -- Data Corruption
-  -- UPDATE TOP (100) Person.ContactType
-  -- SET Name = NULL;
+  -- Data Corruption
+  UPDATE TOP (100) Person.ContactType
+  SET Name = NULL;
 
 - After executing this code, I confirmed its success by comparing it to the local SQL Database using the connection already established in Azure Data Studio. I observed that in the SalesOrderDetail table, entries had fallen from 121,317 to 121,217. Additionally, I confirmed the loss of several URLs.
 - To initiate the recovery process, I accessed the database within the Azure Cloud and selected the "Restore database" window. I chose to restore the database to a state an hour before the changes had taken place. During this process, I ensured to [mention any specific options or configurations chosen during the restoration]. After completion, I confirmed that the tables were back to their original specifications.
