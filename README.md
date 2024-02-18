@@ -1,5 +1,14 @@
 # Azure Database Migration
 
+## Table of contents
+1. [Milestone 1: Set up the Environment](#Milestone_1)
+2. [Milestone 2: Set up the Production Environment](#Milestone_2)
+3. [Milestone 3: Migrate to Azure SQL Database](#Milestone_3)
+4. [Milestone 4: Set up the Development Environment and Introduce Regular Backups](#Milestone_4)
+5. [Milestone 5: Disaster Recovery Simulation](#Milestone_5)
+6. [Milestone 6: Geo-Replication for Azure SQL Database](#Milestone_6)
+7. [Milestone 7: Microsoft Entra Integration](#Milestone_7)
+
 Within his project I establish a production environment database on a virtual machine with the AdventureWorks database. I then migrate this database to an Azure SQL Database. This ensures there is a backup which is easily accessible.
 
 To increase data resiliance a developement enviroment is created on another virtual machine. The AdventureWorks database is imported from a blob storage container. Scheduled backups are also set up to increase resiliance further. 
@@ -8,15 +17,15 @@ A pivotal phase of the project involves simulating a disaster recovery scenario 
 
 To enhance security, Microsoft Entra ID integration will then be employed to define access roles, adding an extra layer of control and protection.
 
-## Milestone 1: Set up the environment
+## Milestone 1: Set up the Environment <a name="Milestone_1"></a>
 
 - I set up a repository on GitHub to track progress.
 
-## Milestone 2: Set up the production Environment
+## Milestone 2: Set up the Production Environment <a name="Milestone_2"></a>
 
 - I set up a Windows Virtual Machine (VM) to serve as the cornerstone of the production environment. The specified VM uses the operating system Windows 11 Pro and is Standard B2ms (2 vcpus, 8 GiB memory).
 
-## Milestone 3: Migrate to Azure SQL Database
+## Milestone 3: Migrate to Azure SQL Database <a name="Milestone_3"></a>
 
 - Created an Azure SQL Database, which served as the target for database migration.
 - Installed and configured Azure Data Studio on the production Windows VM. I used this tool to establish a connection to the existing on-premise database.
@@ -32,7 +41,7 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 
 ![Comparing with Azure Person.Person table](./images/Azure-Person-Top1000.png)
 
-## Milestone 4: Set up the Development Environment and Introduce Regular Backups
+## Milestone 4: Set up the Development Environment and Introduce Regular Backups <a name="Milestone_4"></a>
 
 - I began by generating a full backup of the production database hosted on the Windows VM.
 
@@ -53,22 +62,32 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 ![Automating Backups](./images/Maintenance-plan.png)
 
 
-## Milestone 5: Disaster Recovery Simulation
+## Milestone 5: Disaster Recovery Simulation <a name="Milestone_5"></a>
 
 - I deliberately removed critical data from the production database to replicate a scenario where data integrity is compromised. The SQL code executed for this action is as follows:
 
   ```sql
   -- Intentional Deletion
   DELETE TOP (100)
-  FROM HumanResources.Employee;
+  FROM Sales.SalesOrderDetail;
 
   -- Data Corruption
-  UPDATE TOP (100) Person.ContactType
-  SET Name = NULL;
+  UPDATE TOP (100) Purchasing.Vendor
+  SET PurchasingWebServiceURL = NULL;
 
 - After executing this code, I confirmed its success by comparing it to the local SQL Database using the connection already established in Azure Data Studio. I observed that in the SalesOrderDetail table, entries had fallen from 121,317 to 121,217. Additionally, I confirmed the loss of several URLs.
 - To initiate the recovery process, I accessed the database within the Azure Cloud and selected the "Restore database" window. I chose to restore the database to a state an hour before the changes had taken place. During this process, I ensured to [mention any specific options or configurations chosen during the restoration]. After completion, I confirmed that the tables were back to their original specifications.
 
+## Milestone 6: Geo-Replication for Azure SQL Database <a name="Milestone_6"></a>
+
+- I set up geo-replication for the production Azure SQL Database. This process involved creating a synchronized replica of your primary database. The replica resided on a separate SQL server located in a different geographical region from your primary database server. This geographical separation is crucial to bolsters redundancy and resilience, minimizing shared risks.
+- I then orchestrated a planned failover to the secondary region. This act transitions operations to the secondary copy. I then evaluated the availability and data consistency of the failover database.
+- Afterward, I performed a failback to the primary region, demonstrating the cyclical nature of my failover strategy.
+
+## Milestone 7: Microsoft Entra Integration <a name="Milestone_7"></a>
+
+- I configured Microsoft Entra for the Azure Database.
+- I created a DB reader user so that users are free to analyze the database without it being compromised.
 
 
 ## License information
