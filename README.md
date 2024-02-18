@@ -23,6 +23,9 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 - I leveraged this extension to compare and subsequently migrated the schema from the on-premise database to the Azure SQL Database.
 - Installed the Azure SQL Migration extension within Azure Data Studio.
 - This extension facilitated a smooth transfer of data from the on-premise database to the Azure SQL Database, ensuring a successful and seamless data migration process.
+
+![Database Connections in Azure Data Studio](./images/SSMS-Person-Top1000.png)
+
 - I confirmed the success of the database migration process by comparing the schema of tables. I also chose a table at random and ensured the first 1000 rows had identical entries.
 
 ![Looking at Original Person.Person table](./images/SSMS-Person-Top1000.png)
@@ -32,7 +35,9 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 ## Milestone 4: Set up the Development Environment and Introduce Regular Backups
 
 - I began by generating a full backup of the production database hosted on the Windows VM.
-  ![Creating a Backup of the Production Database](./images/SSMS-Backup.png)
+
+![Creating a Backup of the Production Database](./images/SSMS-Backup.png)
+
 - Once the backup was completed, it was stored in 'C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\Backup/'.
 - The file was then uploaded to a storage container within Microsoft Azure.
 - I set up another virtual machine to act as the development environment. I installed SQL Server and SSMS just as I did on the production environment. I then downloaded the backup file and loaded it into SSMS.
@@ -46,6 +51,24 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 - After doing this, backups from the blob could then be specified. This was done weekly on a Sunday night to minimize impact on the business.
 
 ![Automating Backups](./images/Maintenance-plan.png)
+
+
+## Milestone 5: Disaster Recovery Simulation
+
+- I deliberately removed critical data from the production database to replicate a scenario where data integrity is compromised. The SQL code executed for this action is as follows:
+
+  ```sql
+  -- -- Intentional Deletion
+  -- DELETE TOP (100)
+  -- FROM HumanResources.Employee;
+
+  -- -- Data Corruption
+  -- UPDATE TOP (100) Person.ContactType
+  -- SET Name = NULL;
+
+- After executing this code, I confirmed its success by comparing it to the local SQL Database using the connection already established in Azure Data Studio. I observed that in the SalesOrderDetail table, entries had fallen from 121,317 to 121,217. Additionally, I confirmed the loss of several URLs.
+- To initiate the recovery process, I accessed the database within the Azure Cloud and selected the "Restore database" window. I chose to restore the database to a state an hour before the changes had taken place. During this process, I ensured to [mention any specific options or configurations chosen during the restoration]. After completion, I confirmed that the tables were back to their original specifications.
+
 
 
 ## License information
