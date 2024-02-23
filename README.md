@@ -8,14 +8,15 @@
 5. [Milestone 5: Disaster Recovery Simulation](#Milestone_5)
 6. [Milestone 6: Geo-Replication for Azure SQL Database](#Milestone_6)
 7. [Milestone 7: Microsoft Entra Integration](#Milestone_7)
+8. [What I Have Learnt](#What_I_Have_Learnt)
 
 Within his project I establish a production environment database on a virtual machine with the AdventureWorks database. I then migrate this database to an Azure SQL Database. This ensures there is a backup which is easily accessible.
 
-To increase data resiliance a developement enviroment is created on another virtual machine. The AdventureWorks database is imported from a blob storage container. Scheduled backups are also set up to increase resiliance further. 
+To increase data resiliance a developement enviroment is created on another virtual machine. The AdventureWorks database is imported from a blob storage container. Scheduled backups are also set up to increase resiliance of the development enviroment. 
 
-A pivotal phase of the project involves simulating a disaster recovery scenario with potential data loss. This will demonstate how these backups can be utilised. Furthermore, it will explore the complexities of geo-replication and failover configuration to ensure data availability even under challenging conditions.
+A pivotal phase of the project involves simulating a disaster recovery scenario with potential data loss. This demonstates how these backups are utilised. Furthermore, it explores the complexities of geo-replication and failover configuration to ensure data availability even under challenging conditions.
 
-To enhance security, Microsoft Entra ID integration will then be employed to define access roles, adding an extra layer of control and protection.
+To enhance security, Microsoft Entra ID integration is employed to define access roles, adding an extra layer of control and protection.
 
 ## Milestone 1: Set up the Environment <a name="Milestone_1"></a>
 
@@ -33,7 +34,7 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 - Installed the Azure SQL Migration extension within Azure Data Studio.
 - This extension facilitated a smooth transfer of data from the on-premise database to the Azure SQL Database, ensuring a successful and seamless data migration process.
 
-![Database Connections in Azure Data Studio](./images/SSMS-Person-Top1000.png)
+![Database Connections in Azure Data Studio](./images/Azure-Data-Studio-Connections.png)
 
 - I confirmed the success of the database migration process by comparing the schema of tables. I also chose a table at random and ensured the first 1000 rows had identical entries.
 
@@ -47,7 +48,7 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 
 ![Creating a Backup of the Production Database](./images/SSMS-Backup.png)
 
-- Once the backup was completed, it was stored in 'C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\Backup/'.
+- Once the backup was completed, it was stored in `C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\Backup/`.
 - The file was then uploaded to a storage container within Microsoft Azure.
 - I set up another virtual machine to act as the development environment. I installed SQL Server and SSMS just as I did on the production environment. I then downloaded the backup file and loaded it into SSMS.
 
@@ -81,14 +82,39 @@ To enhance security, Microsoft Entra ID integration will then be employed to def
 ## Milestone 6: Geo-Replication for Azure SQL Database <a name="Milestone_6"></a>
 
 - I set up geo-replication for the production Azure SQL Database. This process involved creating a synchronized replica of your primary database. The replica resided on a separate SQL server located in a different geographical region from your primary database server. This geographical separation is crucial to bolsters redundancy and resilience, minimizing shared risks.
+
+![Geo-Replication](./images/Geo-Replication.png)
+
 - I then orchestrated a planned failover to the secondary region. This act transitions operations to the secondary copy. I then evaluated the availability and data consistency of the failover database.
 - Afterward, I performed a failback to the primary region, demonstrating the cyclical nature of my failover strategy.
 
 ## Milestone 7: Microsoft Entra Integration <a name="Milestone_7"></a>
 
-- I configured Microsoft Entra for the Azure Database.
-- I created a DB reader user so that users are free to analyze the database without it being compromised.
+- I configured Microsoft Entra for the Azure Database, ensuring enhanced security, simplified user management, and seamless application integration. Initially, I assigned an admin user for the SQL Server with elevated privileges for server and database management, including the ability to create other users.
 
+![Creating Admin User](./images/Creating-Admin-User.png)
+
+- Next, I created a `DB reader` user who has the ability to analyze the database without compromising its integrity.
+
+![Creating DB_Reader](./images/Users.png)
+
+- In Azure Data Studio, I disconnected from the production database using SQL login details, then reconnected using Microsoft Entra. I executed the following SQL code to define a `DB_Reader` with read-only access:
+
+   ```sql
+   CREATE USER [DB_Reader@robertkay50hotmail.onmicrosoft.com] FROM EXTERNAL PROVIDER;
+   ALTER ROLE db_datareader ADD MEMBER [DB_Reader@robertkay50hotmail.onmicrosoft.com];
+
+![Defining DB_Reader](./images/Creating-DB_Reader.png)
+
+## What I Have Learnt <a name="What_I_Have_Learnt"></a>
+
+The UML diagram below outlines what I have done within this project.
+
+![ UML Diagram of the Architecture](./images/uml_diagram.png)
+
+During this project, I have learned about the features of Microsoft Azure. Not only can I upload databases to the cloud, but I also know how to restore them if necessary. Ideally, it would be through Geo-Replication, as databases could be switched seamlessly. However, if this is not available, and an issue is caught early, rolling back to an earlier time point would be possible. If geo-replication and a roll-back are both not possible, scheduled maintenance should mean that the `.bak` files are readily available to restore the database to full working order.
+
+The most likely cause of an error within a database is due to a user modifying tables inappropriately. To reduce the likelihood of this scenario, using Azure Active Studio, you can create a read-only user. Using this profile when interrogating the data ensures no harm can be done. Like with anything, prevention is the preferable course of action.
 
 ## License information
 
